@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    match /users/{uid} {
+      // a user can read their own profile; admins can read all
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // a user can create their own profile but NOT set privileged fields
+      allow create: if isSignedIn() && request.auth.uid == uid
+        && request.resource.data.isAdmin == false
+        && request.resource.data.plan == 'free';
+      // a user may update their own non-privileged fields; admins update anything
+      allow update: if isAdmin() ||
+        (isSignedIn() && request.auth.uid == uid
+          && request.resource.data.isAdmin == resource.data.isAdmin);
+      allow delete: if isAdmin();
+
+      match /usage/{doc} {
+        allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+        allow write: if false; // server-only via Admin SDK
+      }
+    }
+
+    match /decks/{deckId} {
+      allow read, write: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow read: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+  }
+}
