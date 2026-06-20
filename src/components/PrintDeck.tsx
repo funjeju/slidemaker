@@ -14,12 +14,18 @@ export default function PrintDeck({ deck, theme }: { deck: Deck; theme: Theme })
   const size = RATIO_SIZES[deck.ratio] ?? RATIO_SIZES["16:9"];
   return (
     <div className="print-root" aria-hidden>
-      {deck.slides.map((s) => {
+      {deck.slides.map((s, i) => {
         const type = resolveLayout(s);
         const Layout = LAYOUTS[type] ?? LAYOUTS.keyMessage;
+        const showFooter = !["cover", "section", "fullBleed"].includes(type);
         return (
-          <div className="print-slide" key={s.id} style={{ width: size.w, height: size.h }}>
+          <div className="print-slide" key={s.id} style={{ width: size.w, height: size.h, position: "relative" }}>
             <Layout slide={s} theme={theme} size={size} />
+            {showFooter && (
+              <div style={{ position: "absolute", right: 64, bottom: 34, fontSize: 18, letterSpacing: 1, color: theme.textMuted, fontFamily: theme.fontBody }}>
+                {i + 1} / {deck.slides.length}
+              </div>
+            )}
           </div>
         );
       })}

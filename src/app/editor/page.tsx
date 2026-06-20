@@ -299,7 +299,7 @@ export default function Editor() {
           <div className="panel" style={{ flex: 1, padding: 16, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
             {slide ? (
               <div style={{ width: "100%", maxWidth: ratio === "9:16" ? 420 : 880, boxShadow: "0 1px 12px rgba(0,0,0,0.08)", borderRadius: 8, overflow: "hidden" }}>
-                <SlideRenderer slide={slide} theme={theme} ratio={ratio} />
+                <SlideRenderer slide={slide} theme={theme} ratio={ratio} index={sel} total={deck?.slides.length} />
               </div>
             ) : (
               <p style={{ color: "var(--muted)" }}>왼쪽에 소스를 넣고 “슬라이드 생성”을 눌러보세요.</p>

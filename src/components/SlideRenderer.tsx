@@ -8,16 +8,24 @@ import { LAYOUTS } from "@/layouts";
 
 // Renders a single slide. `respectType` (default false) lets the editor force a
 // user-chosen layout without the auto fallback. `ratio` picks the canvas size.
+// When `index`/`total` are given, a subtle page number is overlaid (skipped on
+// full-bleed archetypes).
+const NO_FOOTER = new Set(["cover", "section", "fullBleed"]);
+
 export default function SlideRenderer({
   slide,
   theme,
   ratio = "16:9",
   respectType = false,
+  index,
+  total,
 }: {
   slide: SlideIR;
   theme: Theme;
   ratio?: Ratio;
   respectType?: boolean;
+  index?: number;
+  total?: number;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -36,6 +44,7 @@ export default function SlideRenderer({
 
   const type = respectType ? slide.type : resolveLayout(slide);
   const Layout = LAYOUTS[type] ?? LAYOUTS.keyMessage;
+  const showFooter = index != null && total != null && !NO_FOOTER.has(type);
 
   return (
     <div
@@ -54,6 +63,21 @@ export default function SlideRenderer({
         }}
       >
         <Layout slide={slide} theme={theme} size={size} />
+        {showFooter && (
+          <div
+            style={{
+              position: "absolute",
+              right: 64,
+              bottom: 34,
+              fontSize: 18,
+              letterSpacing: 1,
+              color: theme.textMuted,
+              fontFamily: theme.fontBody,
+            }}
+          >
+            {(index as number) + 1} / {total}
+          </div>
+        )}
       </div>
     </div>
   );
