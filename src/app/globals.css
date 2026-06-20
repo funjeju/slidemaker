@@ -69,3 +69,12 @@ textarea, input {
   color: var(--text);
 }
 textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* ---- Print / PDF export ---- */
+.print-root { display: none; }
+@media print {
+  .screen-only { display: none !important; }
+  .print-root { display: block; }
+  .print-slide { break-after: page; page-break-after: always; overflow: hidden; }
+  .print-slide:last-child { break-after: auto; page-break-after: auto; }
+}

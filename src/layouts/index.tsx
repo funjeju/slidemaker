@@ -5,17 +5,24 @@ import type { Theme } from "@/engine/themes";
 // Every layout renders into a fixed 1280x720 canvas; SlideRenderer scales it.
 // Structure is fixed per archetype; all color/type comes from `theme`.
 
+export interface CanvasSize {
+  w: number;
+  h: number;
+}
+
 export interface LayoutProps {
   slide: SlideIR;
   theme: Theme;
+  size?: CanvasSize;
 }
 
+const DEFAULT_SIZE: CanvasSize = { w: 1280, h: 720 };
 const PAD = 88;
 
-function frame(theme: Theme, extra: React.CSSProperties = {}): React.CSSProperties {
+function frame(theme: Theme, size: CanvasSize = DEFAULT_SIZE, extra: React.CSSProperties = {}): React.CSSProperties {
   return {
-    width: 1280,
-    height: 720,
+    width: size.w,
+    height: size.h,
     background: theme.bg,
     color: theme.text,
     fontFamily: theme.fontBody,
@@ -61,8 +68,8 @@ function ImageSlot({ m, radius }: { m?: MediaRef; radius: string }) {
   );
 }
 
-const Cover = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { display: "flex", flexDirection: "column", justifyContent: "center", padding: PAD })}>
+const Cover = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { display: "flex", flexDirection: "column", justifyContent: "center", padding: PAD })}>
     <div style={{ width: 64, height: 6, background: theme.accent, marginBottom: 36 }} />
     <h1 style={{ fontFamily: theme.fontDisplay, fontSize: 78, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
       {slide.title}
@@ -73,16 +80,16 @@ const Cover = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const Section = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { background: theme.accent, color: theme.accentText, display: "flex", flexDirection: "column", justifyContent: "center", padding: PAD })}>
+const Section = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { background: theme.accent, color: theme.accentText, display: "flex", flexDirection: "column", justifyContent: "center", padding: PAD })}>
     <p style={{ fontSize: 26, opacity: 0.7, margin: 0, letterSpacing: 2 }}>SECTION</p>
     <h1 style={{ fontFamily: theme.fontDisplay, fontSize: 72, fontWeight: 700, margin: "18px 0 0" }}>{slide.title}</h1>
     {slide.subtitle && <p style={{ fontSize: 30, opacity: 0.85, marginTop: 20 }}>{slide.subtitle}</p>}
   </div>
 );
 
-const KeyMessage = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { display: "flex", flexDirection: "column", justifyContent: "center", padding: 120 })}>
+const KeyMessage = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { display: "flex", flexDirection: "column", justifyContent: "center", padding: 120 })}>
     {slide.title && <p style={{ fontSize: 28, color: theme.accent, margin: "0 0 24px" }}>{slide.title}</p>}
     <p style={{ fontFamily: theme.fontDisplay, fontSize: 60, fontWeight: 600, lineHeight: 1.25, margin: 0 }}>
       {slide.body}
@@ -90,8 +97,8 @@ const KeyMessage = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const Stat = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: PAD, textAlign: "center" })}>
+const Stat = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: PAD, textAlign: "center" })}>
     <div style={{ fontFamily: theme.fontDisplay, fontSize: 220, fontWeight: 700, lineHeight: 1, color: theme.accent }}>
       {slide.stat?.value}
     </div>
@@ -100,8 +107,8 @@ const Stat = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const Quote = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { display: "flex", flexDirection: "column", justifyContent: "center", padding: 120 })}>
+const Quote = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { display: "flex", flexDirection: "column", justifyContent: "center", padding: 120 })}>
     <div style={{ fontFamily: theme.fontDisplay, fontSize: 120, color: theme.accent, lineHeight: 0.6, height: 60 }}>“</div>
     <p style={{ fontFamily: theme.fontDisplay, fontSize: 50, fontWeight: 500, lineHeight: 1.35, margin: 0 }}>
       {slide.quote?.text}
@@ -119,8 +126,8 @@ function Title({ slide, theme }: LayoutProps) {
   );
 }
 
-const BulletList = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+const BulletList = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
     <Title slide={slide} theme={theme} />
     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 24 }}>
       {(slide.bullets ?? []).map((b, i) => (
@@ -133,8 +140,8 @@ const BulletList = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const TwoColumn = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+const TwoColumn = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
     <Title slide={slide} theme={theme} />
     <div style={{ display: "flex", gap: 56, alignItems: "center", flex: 1 }}>
       <div style={{ flex: 1 }}>
@@ -152,7 +159,7 @@ const TwoColumn = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const Comparison = ({ slide, theme }: LayoutProps) => {
+const Comparison = ({ slide, theme, size }: LayoutProps) => {
   const c = slide.comparison;
   const col = (side?: { title: string; points: string[] }) => (
     <div style={{ flex: 1, background: theme.surface, borderRadius: theme.radius, padding: 40 }}>
@@ -163,7 +170,7 @@ const Comparison = ({ slide, theme }: LayoutProps) => {
     </div>
   );
   return (
-    <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+    <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
       <Title slide={slide} theme={theme} />
       <div style={{ display: "flex", gap: 40 }}>
         {col(c?.left)}
@@ -173,8 +180,8 @@ const Comparison = ({ slide, theme }: LayoutProps) => {
   );
 };
 
-const Timeline = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+const Timeline = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
     <Title slide={slide} theme={theme} />
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
       {(slide.timeline ?? []).map((t, i) => (
@@ -187,8 +194,8 @@ const Timeline = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const FullBleed = ({ slide, theme }: LayoutProps) => (
-  <div style={frame(theme)}>
+const FullBleed = ({ slide, theme, size }: LayoutProps) => (
+  <div style={frame(theme, size)}>
     <div style={{ position: "absolute", inset: 0 }}>
       <ImageSlot m={bgMedia(slide)} radius="0" />
     </div>
@@ -200,11 +207,11 @@ const FullBleed = ({ slide, theme }: LayoutProps) => (
   </div>
 );
 
-const Chart = ({ slide, theme }: LayoutProps) => {
+const Chart = ({ slide, theme, size }: LayoutProps) => {
   const data = slide.chartData ?? [];
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
-    <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+    <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
       <Title slide={slide} theme={theme} />
       <div style={{ display: "flex", alignItems: "flex-end", gap: 40, height: 360 }}>
         {data.map((d, i) => (
@@ -219,10 +226,10 @@ const Chart = ({ slide, theme }: LayoutProps) => {
   );
 };
 
-const ImageGrid = ({ slide, theme }: LayoutProps) => {
+const ImageGrid = ({ slide, theme, size }: LayoutProps) => {
   const imgs = (slide.media ?? []).filter((m) => (m.role ?? "content") === "content").slice(0, 4);
   return (
-    <div style={frame(theme, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
+    <div style={frame(theme, size, { padding: PAD, display: "flex", flexDirection: "column", justifyContent: "center" })}>
       <Title slide={slide} theme={theme} />
       <div style={{ display: "grid", gridTemplateColumns: imgs.length > 2 ? "1fr 1fr" : `repeat(${imgs.length}, 1fr)`, gap: 24, flex: 1 }}>
         {imgs.map((m, i) => (
