@@ -52,6 +52,12 @@ export default function Editor() {
   const imgRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (!loading && !user) router.replace("/login"); }, [user, loading, router]);
+  // Load the user's saved decks once authenticated. Must stay ABOVE the early
+  // return below so hook order is stable (React error #310 otherwise).
+  useEffect(() => {
+    if (!user) return;
+    listDecks(user.uid).then(setDecks).catch(() => {});
+  }, [user]);
   if (loading || !user) return <div style={{ padding: 40 }}>불러오는 중…</div>;
 
   const baseTheme = getTheme(deck?.themeId ?? THEMES[0].id);
@@ -201,7 +207,6 @@ export default function Editor() {
     const d = await loadDeck(id);
     if (d) { setDeck(d); setSel(0); }
   };
-  useEffect(() => { if (user) refreshDecks(); /* eslint-disable-next-line */ }, [user]);
 
   return (
     <>
